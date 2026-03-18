@@ -1,0 +1,63 @@
+name: Build La Tua Storia Mac App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Compila app
+      run: |
+        swiftc LaStoria.swift \
+          -o LaStoria_binary \
+          -framework Cocoa \
+          -framework WebKit
+
+    - name: Crea struttura .app
+      run: |
+        APP="La Tua Storia.app"
+        mkdir -p "$APP/Contents/MacOS"
+        mkdir -p "$APP/Contents/Resources"
+
+        cp LaStoria_binary "$APP/Contents/MacOS/LaStoria"
+        chmod +x "$APP/Contents/MacOS/LaStoria"
+
+        cat > "$APP/Contents/Info.plist" << 'PLIST'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>CFBundleName</key><string>La Tua Storia</string>
+            <key>CFBundleDisplayName</key><string>La Tua Storia</string>
+            <key>CFBundleIdentifier</key><string>it.lorenzopatti.lastoria</string>
+            <key>CFBundleVersion</key><string>1.0</string>
+            <key>CFBundleShortVersionString</key><string>1.0</string>
+            <key>CFBundleExecutable</key><string>LaStoria</string>
+            <key>CFBundleIconFile</key><string>AppIcon</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>LSMinimumSystemVersion</key><string>12.0</string>
+            <key>NSHighResolutionCapable</key><true/>
+            <key>NSPrincipalClass</key><string>NSApplication</string>
+        </dict>
+        </plist>
+        PLIST
+
+        cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+
+        codesign --force --deep --sign - "$APP"
+
+        zip -r "La.Tua.Storia.zip" "$APP"
+
+    - name: Carica ZIP come artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: La-Tua-Storia-App
+        path: La.Tua.Storia.zip
+        retention-days: 30
