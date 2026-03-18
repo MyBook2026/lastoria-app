@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
     - name: Checkout
@@ -18,11 +18,8 @@ jobs:
         swiftc LaStoria.swift \
           -o LaStoria_binary \
           -framework Cocoa \
-          swiftc LaStoria.swift \
-  -o LaStoria_binary \
-  -framework Cocoa \
-  -framework WebKit \
-  -target x86_64-apple-macos13.0
+          -framework WebKit \
+          -target x86_64-apple-macos13.0
 
     - name: Crea struttura .app
       run: |
@@ -46,7 +43,7 @@ jobs:
             <key>CFBundleExecutable</key><string>LaStoria</string>
             <key>CFBundleIconFile</key><string>AppIcon</string>
             <key>CFBundlePackageType</key><string>APPL</string>
-            <key>LSMinimumSystemVersion</key><string>12.0</string>
+            <key>LSMinimumSystemVersion</key><string>13.0</string>
             <key>NSHighResolutionCapable</key><true/>
             <key>NSPrincipalClass</key><string>NSApplication</string>
         </dict>
@@ -54,9 +51,7 @@ jobs:
         PLIST
 
         cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
-
         codesign --force --deep --sign - "$APP"
-
         zip -r "La.Tua.Storia.zip" "$APP"
 
     - name: Carica ZIP come artifact
