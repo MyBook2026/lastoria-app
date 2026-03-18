@@ -18,7 +18,11 @@ jobs:
         swiftc LaStoria.swift \
           -o LaStoria_binary \
           -framework Cocoa \
-          -framework WebKit
+          swiftc LaStoria.swift \
+  -o LaStoria_binary \
+  -framework Cocoa \
+  -framework WebKit \
+  -target x86_64-apple-macos13.0
 
     - name: Crea struttura .app
       run: |
